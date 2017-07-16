@@ -1,3 +1,4 @@
+---
 dependencies:
 - role: nickhammond.logrotate
   logrotate_scripts:
@@ -12,3 +13,16 @@ dependencies:
     - copytruncate
     - "create 0660 {{vault_user}} {{vault_group}}"
   when: "vault_type != 'client' and ansible_system == 'Linux'"
+galaxy_info:
+  author: Jonathan Freedman
+  license: MIT
+  galaxy_tags:
+    - vault
+    - secrets
+    - docker
+  min_ansible_version: 2.0
+  description: "Install and run Hashicorp in a variety of ways."
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all

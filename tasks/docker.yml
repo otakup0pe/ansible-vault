@@ -9,7 +9,7 @@
   become: no
   delegate_to: 'localhost'
   docker_container:
-    name: "{{is_named}}"
+    name: "{{vault_docker_name}}"
     docker_host: "tcp://{{vault_docker_host}}:2376"
     cacert_path: "{{vault_docker_cacert_path}}"
     key_path: "{{vault_docker_key_path}}"
@@ -20,12 +20,11 @@
     published_ports:
       - "{{vault_internal_ip}}:{{vault_port}}:8200"
     image: "vault:{{vault_version}}"
-    command: "{{use_command|default(omit)}}"
-    volume:
+    command: "server"
+    volumes:
       - "{{vault_config_path}}:/vault/config"
       - "{{vault_log_path}}:/vault/logs"
-    use_command: "server"
-    caps:
+    capabilities:
       - "IPC_LOCK"
   when: >
     (vault_container_check.rc == 1 or

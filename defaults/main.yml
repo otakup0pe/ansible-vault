@@ -1,0 +1,21 @@
+vault_type: "docker" # or server or client
+vault_config_path: "/opt/vault/etc"
+vault_log_path: "/opt/vault/logs"
+vault_user: "dockit"
+vault_group: "docker"
+vault_port: "8200"
+# note that on things like ec2 the internal ip might be different
+vault_ip: "127.0.0.1"
+vault_internal_ip: "{{vault_ip}}"
+vault_aws_region: "us-west-2"
+vault_cache: "/var/cache/ansible-vault"
+vault_path: "/opt/vault"
+vault_version: "0.6.2"
+vault_dns_ttl: "10800"
+vault_profile_path: "/etc/profile.d"
+vault_docker:
+  cacert_path: "{{lookup('env', 'HOME') + '/.docker/machines/machine/local/ca.pem"
+  key_path: "{{lookup('env', 'HOME') + '/.docker/machines/machine/local/key.pem"
+  cert_path: "{{lookup('env', 'HOME') + '/.docker/machines/machine/local/cert.pem"
+  tls_hostname: "{{ansible_fqdn}}"
+  host: "tcp://{{lookup('dig', ansible_fqdn)}}:2376"

@@ -1,0 +1,68 @@
+- name: "allow vault access"
+  ufw:
+    from_ip: "0.0.0.0/0"
+    to_ip: "{{vault_internal_ip}}"
+    direction: "in"
+    proto: "tcp"
+    rule: "allow"
+    to_port: "{{vault_port}}"
+- name: "set vault dns"
+  become: no
+  delegate_to: 'localhost'
+  route53:
+    zone: "{{vault_zoneid}}"
+    record: "{{vault_url}}"
+    value: "{{vault_ip}}"
+    type: "A"
+    ttl: "{{vault_dns_ttl}}"
+    command: create
+    overwrite: yes
+  when: "vault_url and vault_zoneid and vault_ip"
+- name: "ensure bucket"
+  become: no
+  delegate_to: 'localhost'
+  s3:
+    bucket: "{{vault_bucket}}"
+    mode: "create"
+    region: "{{vault_aws_region}}"
+- name: "ensure vault config directory exists"
+  file:
+    path: "{{vault_config_path}}"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "0770"
+    state: "directory"
+- name: "generate configuration"
+  template:
+    src: "config.hcl"
+    dest: "{{vault_config_path}}/config.hcl"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "0660"
+  register: vault_config
+- name: "create log directory"
+  file:
+    path: "{{vault_log_path}}"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "2770"
+    state: "directory"
+# why is this here? do the perms just break sometimes?
+- name: "ensure permissions are fine"
+  file:
+    path: "{{vault_log_path}}/audit.log"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "0660"
+    state: "file"
+  ignore_errors: true
+- name: "copy tls bits"
+  copy:
+    src: "{{dotfiles}}/vault/{{vault_cert}}.{{item}}"
+    dest: "{{vault_config_path}}/server.{{item}}"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "0600"
+  with_items:
+    - "crt"
+    - "key"

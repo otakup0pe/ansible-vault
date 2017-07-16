@@ -1,0 +1,14 @@
+dependencies:
+- role: nickhammond.logrotate
+  logrotate_scripts:
+  - name: "vault-audit"
+    path: "{{vault_log_path}}/audit.log"
+    options:
+    - daily
+    - missingok
+    - compress
+    - rotate 2
+    - "su {{vault_user}} {{vault_group}}"
+    - copytruncate
+    - "create 0660 {{vault_user}} {{vault_group}}"
+  when: "vault_type != 'client' and ansible_system == 'Linux'"

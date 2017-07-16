@@ -1,0 +1,7 @@
+- include: "pre.yml"
+- include: "package.yml"
+  when: "vault_type != 'docker'"
+- include: "server.yml"
+  when: "vault_type != 'client'"
+- include: "docker.yml"
+  when: "vault_type == 'docker'"

@@ -1,0 +1,3 @@
+- set_fact:
+    vault_download_url: "{{vault_pre_url}}{{ansible_system|lower}}_amd64.zip"
+  when: "ansible_machine == 'x86_64'"

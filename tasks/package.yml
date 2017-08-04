@@ -3,7 +3,7 @@
     path: "{{item}}"
     state: directory
   with_items:
-  - "{{vault_path}}/bin"
+  - "{{vault_bin_path}}"
   - "{{vault_cache}}"
   - "{{vault_install_directory}}"
 - name: "check for existing binary"
@@ -24,10 +24,6 @@
   when: "vault_binary_exists.stat.exists == False"
 - name: "link binary"
   file:
-    path: "{{vault_path}}/bin/vault"
+    path: "{{vault_bin_path}}/vault"
     src: "{{vault_binary}}"
     state: link
-- name: "create profile PATH hook"
-  template:
-    dest: "{{vault_profile_path}}/vault_profile"
-    src: "vault_profile.sh"

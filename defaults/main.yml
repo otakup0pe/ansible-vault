@@ -1,6 +1,8 @@
 vault_type: "docker" # or server or client
-vault_config_path: "/opt/vault/etc"
-vault_log_path: "/opt/vault/logs"
+vault_path: "/opt/vault"
+vault_config_path: "{{vault_path}}/etc"
+vault_log_path: "{{vault_path}}/logs"
+vault_bin_path: "{{vault_path}}/bin"
 vault_user: "dockit"
 vault_group: "docker"
 vault_port: "8200"
@@ -9,13 +11,18 @@ vault_ip: "127.0.0.1"
 vault_internal_ip: "{{vault_ip}}"
 vault_aws_region: "us-west-2"
 vault_cache: "/var/cache/ansible-vault"
-vault_path: "/opt/vault"
 vault_version: "0.6.2"
 vault_dns_ttl: "10800"
 vault_profile_path: "/etc/profile.d"
 vault_docker_host: "tcp://{{lookup('dig', ansible_fqdn)}}:2376"
-vault_docker_cacert_path: "{{lookup('env', 'HOME') + '/.docker/machines/machine/local/ca.pem"
-vault_docker_key_path: "{{lookup('env', 'HOME') + '/.docker/machines/machine/local/key.pem"
-vault_docker_cert_path: "{{lookup('env', 'HOME') + '/.docker/machines/machine/local/cert.pem"
+vault_docker_cacert_path: "{{lookup('env', 'HOME')}}/.docker/machines/machine/local/ca.pem"
+vault_docker_key_path: "{{lookup('env', 'HOME')}}/.docker/machines/machine/local/key.pem"
+vault_docker_cert_path: "{{lookup('env', 'HOME')}}/.docker/machines/machine/local/cert.pem"
 vault_docker_tls_hostname: "{{ansible_fqdn}}"
 vault_docker_name: "some_vault"
+
+vault_workstation: no
+hcvswitch_install: yes
+hcvswitch_path: "{{vault_path}}/hcvswitch"
+hcvswitch_config: "{{lookup('env', 'HOME')}}/.hcv.yml"
+hcvswitch_update: yes

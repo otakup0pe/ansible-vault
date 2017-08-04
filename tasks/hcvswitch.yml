@@ -1,0 +1,18 @@
+- name: "check hcvswitch_source"
+  fail:
+    msg: "hcvswitch_source must be set"
+  when: "hcvswitch_config|default('') == ''"
+- name: "fetch from git"
+  git:
+    repo: "{{hcvswitch_repo}}"
+    dest: "{{hcvswitch_path}}"
+    accept_hostkey: yes
+    depth: 1
+    update: "{{hcvswitch_update}}"
+- name: "copy hcvswitch config"
+  copy:
+    src: "{{hcvswitch_source}}"
+    dest: "{{hcvswitch_config}}"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: 0770

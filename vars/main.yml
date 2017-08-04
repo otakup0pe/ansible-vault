@@ -3,3 +3,5 @@ vault_download_url: "{{vault_pre_url}}{{ansible_system|lower}}_{{ansible_machine
 vault_download_dest: "{{vault_cache}}/vault-{{vault_version}}.zip"
 vault_install_directory: "{{vault_path}}/{{vault_version}}"
 vault_binary: "{{vault_install_directory}}/vault"
+
+hcvswitch_repo: "git@github.com:otakup0pe/hcvswitch.git"

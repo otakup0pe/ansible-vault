@@ -1,0 +1,9 @@
+- include: "hcvswitch.yml"
+  when: hcvswitch_install
+- name: "render vault workstation profile"
+  template:
+    src: "vault-profile.j2"
+    dest: "{{vault_profile_path}}/.vault_profile"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "0660"

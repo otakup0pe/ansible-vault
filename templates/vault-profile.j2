@@ -1,0 +1,120 @@
+
+# -*-Shell-script-*-
+
+{% if hcvswitch_install -%}
+HCVSWITCH_PATH="{{hcvswitch_path}}"
+. "${HCVSWITCH_PATH}/init.sh"
+{% endif -%}
+
+function vault-docker-destroy {
+    docker stop "$1" &> /dev/null
+    docker rm "$1" &> /dev/null
+}
+
+function vault-cluster-start() {
+    docker run -d --name=dev-consul consul
+    local CONSUL_IP=$(docker inspect dev-consul| jq -Mr ".[0].NetworkSettings.IPAddress")
+    vault-docker-start cluster "$CONSUL_IP"
+    vault-docker-start cluster "$CONSUL_IP" 8201    
+}
+function vault-cluster-stop() {
+    vault-docker-destroy dev-consul
+    for id in $(docker ps | grep 'dev-vault-' | awk '{print $1}') ; do
+        vault-docker-destroy "$id"
+    done
+}
+
+alias vault-docker-token="docker logs dev-vault 2>1 | grep -e 'Root Token' | cut -f 3 -d ' '"
+function vault-docker-start() {
+    ARG="$1"
+    shift
+    PORT=8200
+    if [ "$ARG" == "cluster" ] ; then
+        CONSUL="$1"
+        if [ ! -z "$2" ] ; then
+            PORT="$2"
+        fi
+    else
+        if [ ! -z "$1" ] ; then
+            PORT="$1"
+        fi
+    fi
+    docker rm dev-vault &> /dev/null
+    declare -a CMD=(docker run -d)
+    if [ "$ARG" == "cluster" ] ; then
+        CMD+=(--name "dev-vault-${RANDOM}")
+    else
+        CMD+=(--name "dev-vault")
+    fi
+    if [ -z "$DOCKER_MACHINE_NAME" ] ; then
+        CMD+=(-p "127.0.0.1:${PORT}:8200")
+    elif [ "$DOCKER_MACHINE_NAME" == "local" ] ; then
+        CMD+=(-p "${PORT}:8200")
+    else
+        echo "Don't know what to do"
+        return
+    fi
+    if [ "$ARG" == "server" ] ; then
+        CMD+=(--cap-add=IPC_LOCK -e 'VAULT_LOCAL_CONFIG={"listener": { "tcp": { "address": "0.0.0.0:8200", "tls_disable": 1}}, "backend": {"file": {"path": "/vault/file"}}' vault server)
+    elif [ "$ARG" == "cluster" ] ; then
+        CMD+=(--cap-add=IPC_LOCK -e 'VAULT_LOCAL_CONFIG={"listener": { "tcp": { "address": "0.0.0.0:8200", "tls_disable": 1}}, "backend": {"consul": {"redirect_addr": "http://127.0.0.1:'${PORT}'/", "address":"'${CONSUL}':8500", "path": "vault"}}' vault server)
+    else
+        CMD+=(vault server -dev)
+    fi
+    "${CMD[@]}"
+}
+alias vault-docker-stop="docker kill dev-vault &> /dev/null ; docker rm dev-vault &> /dev/null"
+function aomi-docker {
+    local aomi_image="autodesk/aomi:latest"
+    if [ ! -z "$AOMI_DOCKER_VERSION" ] ; then
+        aomi_image="$AOMI_DOCKER_VERSION"
+    fi
+    if [ ! -z "$VAULT_TOKEN" ] ; then
+        docker run -ti \
+               -e "VAULT_ADDR=$VAULT_ADDR" \
+               -e "VAULT_TOKEN=$VAULT_TOKEN" \
+               -v "$(pwd):/app" \
+               "${aomi_image}" $*
+    elif [ -e "${HOME}/.vault-token" ] ; then
+        docker run -ti \
+               -e "VAULT_ADDR=$VAULT_ADDR" \
+               -v "${HOME}/.vault-token:/.vault-token" \
+               -v "$(pwd):/app" \
+               "${aomi_image}" $*
+    else
+        echo "No Vault hints"
+    fi
+}
+
+function vault-whoami {
+    local json
+    json=$(vault token-lookup -format=json 2> /dev/null)
+    if [ $? != 0 ] ; then
+        echo "Unable to query Vault"
+    else
+        local now=$(date "+%s")
+        local created=$(jq -cMr .data.creation_time <<< "$json")
+        local duration=$(jq -cMr .data.creation_ttl <<< "$json")
+        if [ "$duration" != "0" ] ; then
+            local life=$((now - created))
+            local remaining=$((duration - life))
+            local rem_str=""
+            if [ "$remaining" -lt 86400 ] ; then
+                rem_str=" (${remaining}s)"
+            fi
+        fi
+        local policies
+        local username
+        policies=$(jq -cM .data.policies <<< "$json" | sed -e 's!\[!!g' -e 's!\]!!g' -e 's!"!!g')
+        username=$(jq -cMr .data.display_name  <<< "$json")
+        echo "${username} - ${policies}${rem_str}"
+    fi
+}
+
+function vault-ls() {
+    if [ -z "$1" ] ; then
+        vault mounts
+    else
+        vault list "$1"
+    fi
+}

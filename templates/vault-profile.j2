@@ -2,7 +2,7 @@
 # -*-Shell-script-*-
 
 {% if hcvswitch_install -%}
-HCVSWITCH_PATH="{{hcvswitch_path}}"
+export HCVSWITCH_PATH="{{hcvswitch_path}}"
 . "${HCVSWITCH_PATH}/init.sh"
 {% endif -%}
 

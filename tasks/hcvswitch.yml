@@ -3,6 +3,8 @@
     msg: "hcvswitch_source must be set"
   when: "hcvswitch_config|default('') == ''"
 - name: "fetch from git"
+  become: yes
+  become_user: "{{vault_user}}"
   git:
     repo: "{{hcvswitch_repo}}"
     dest: "{{hcvswitch_path}}"

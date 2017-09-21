@@ -1,4 +1,7 @@
 
 # -*-Shell-script-*-
 
-PATH="{{vault_path}}/bin:${PATH}"
+VAULT_PATH="{{vault_path}}/bin"
+if ! grep -e "$VAULT_PATH" <<< "$PATH" > /dev/null ; then
+    PATH="${VAULT_PATH}:${PATH}"
+fi

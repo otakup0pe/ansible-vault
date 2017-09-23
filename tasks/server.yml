@@ -66,3 +66,4 @@
   with_items:
     - "crt"
     - "key"
+  register: vault_tls_bits

@@ -29,4 +29,5 @@
   when: >
     (vault_container_check.rc == 1 or
     vault_container_check.stdout == "false" or
-    vault_config.changed|default(False))
+    vault_config.changed|default(False) or
+    vault_tls_bits.changed)

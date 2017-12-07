@@ -1,0 +1,23 @@
+- name: "create volume"
+  delegate_to: 'localhost'
+  become: no
+  docker_volume:
+    name: "{{vault_docker_name}}_{{volume_name}}"
+    state: "present"
+    docker_host: "tcp://{{vault_docker_host}}:2376"
+    cacert_path: "{{vault_docker_cacert_path}}"
+    key_path: "{{vault_docker_key_path}}"
+    cert_path:  "{{vault_docker_cert_path}}"
+    tls_hostname: "{{vault_docker_host}}"
+    tls_verify: yes
+- name: "check volume data type"
+  stat:
+    path: "/var/lib/docker/volumes/{{vault_docker_name}}_{{volume_name}}/_data"
+  register: data_stat
+- name: "bindfs mount for perm map"
+  mount:
+    fstype: "fuse.bindfs"
+    state: mounted
+    path: "/var/lib/docker/volumes/{{vault_docker_name}}_{{volume_name}}/_data"
+    src: "{{volume_source}}"
+    opts: "force-user={{vault_docker_uid}},force-group={{vault_docker_gid}},chmod-ignore,chown-ignore,chgrp-ignore"

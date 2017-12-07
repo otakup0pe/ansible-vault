@@ -1,0 +1,7 @@
+---
+- include: "docker.yml"
+  container_name: "{{vault_ui_docker_name}}"
+  image: "djenriquez/vault-ui:{{vault_ui_version}}"
+  use_env:
+    VAULT_URL_DEFAULT: "https://{{vault_url}}:{{vault_port}}/"
+    VAULT_AUTH_DEFAULT: "USERNAMEPASSWORD"

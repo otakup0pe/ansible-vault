@@ -1,0 +1,21 @@
+---
+- name: "allow vault access"
+  ufw:
+    from_ip: "0.0.0.0/0"
+    to_ip: "{{vault_internal_ip}}"
+    direction: "in"
+    proto: "tcp"
+    rule: "allow"
+    to_port: "{{vault_port}}"
+- name: "set vault dns"
+  become: no
+  delegate_to: 'localhost'
+  route53:
+    zone: "{{vault_zoneid}}"
+    record: "{{vault_url}}"
+    value: "{{vault_ip}}"
+    type: "A"
+    ttl: "{{vault_dns_ttl}}"
+    command: create
+    overwrite: yes
+  when: "vault_url and vault_zoneid and vault_ip"

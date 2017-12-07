@@ -1,12 +1,18 @@
+- debug:
+    msg: "Trying to manifest a Vault {{vault_type}}"
 - include: "pre.yml"
 - include: "package.yml"
-  when: "vault_type != 'docker'"
+  when: >
+    vault_type != "docker" and
+    ( vault_type == "client" or vault_type == "server" )
 - include: "server.yml"
-  when: "vault_type != 'client'"
-- include: "docker.yml"
-  when: "vault_type == 'docker'"
+  when: vault_type == "server" or vault_type == "docker"
+- include: "ui.yml"
+  when: vault_type == "ui"  
 - include: "workstation.yml"
   when: vault_workstation
+- include: "ssh.yml"
+  when: vault_ssh
 - name: "set workstation vaultrc format"
   set_fact:
     vault_rc: "{{vault_profile_path}}/.vaultrc"
@@ -22,4 +28,6 @@
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
     mode: "0660"
-  when: "vault_workstation or vault_type != 'docker'"
+  when: >
+    vault_workstation or vault_type == "client" or vault_type == "server"
+    

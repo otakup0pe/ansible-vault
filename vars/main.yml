@@ -5,3 +5,17 @@ vault_install_directory: "{{vault_path}}/{{vault_version}}"
 vault_binary: "{{vault_install_directory}}/vault"
 
 hcvswitch_repo: "git@github.com:otakup0pe/hcvswitch.git"
+
+vault_ssh_url: "https://releases.hashicorp.com/vault-ssh-helper/{{vault_ssh_version}}/vault-ssh-helper_{{vault_ssh_version}}_linux_{{ansible_machine}}.zip"
+vault_ssh_download_dest: "{{vault_cache}}/vault-ssh-{{vault_version}}.zip"
+vault_ssh_binary: "{{vault_ssh_directory}}/vault-ssh-helper"
+vault_docker_apt:
+  - bindfs
+  - docker.io
+  - bridge-utils
+
+vault_tls_files:
+  - src: "{{vault_tls_cert}}"
+    dest: "{{vault_config_path}}/server.crt"
+  - src: "{{vault_tls_key}}"
+    dest: "{{vault_config_path}}/server.key"

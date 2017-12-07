@@ -1,33 +1,49 @@
 ---
+- debug:
+    msg: "vault docker container {{container_name}}"
 - name: "check for running container"
-  command: >
-    docker inspect --format \{\{.State.Running\}\} das_vault
+  shell: >
+    DOCKER_TLS_VERIFY=1 DOCKER_HOST="{{vault_docker_host}}:2376" DOCKER_CERT_PATH="{{vault_docker_cert_path|dirname}}"
+    docker inspect --format \{\{.State.Running\}\} {{container_name}}
   ignore_errors: True
   changed_when: no
+  delegate_to: localhost
+  become: no
   register: vault_container_check
+- name: "check running version"
+  shell: >
+    DOCKER_TLS_VERIFY=1 DOCKER_HOST="{{vault_docker_host}}:2376" DOCKER_CERT_PATH="{{vault_docker_cert_path|dirname}}"
+    docker inspect --format \{\{.Config.Image\}\} {{container_name}}
+  changed_when: no
+  register: vault_version_check
+  delegate_to: 'localhost'
+  become: no  
+  when: vault_container_check.rc == 0
 - name: "run container"
   become: no
   delegate_to: 'localhost'
   docker_container:
-    name: "{{vault_docker_name}}"
+    name: "{{container_name}}"
+    restart_policy: "{{vault_docker_restart}}"
     docker_host: "tcp://{{vault_docker_host}}:2376"
     cacert_path: "{{vault_docker_cacert_path}}"
     key_path: "{{vault_docker_key_path}}"
     cert_path:  "{{vault_docker_cert_path}}"
     tls_hostname: "{{vault_docker_host}}"
-    tls: yes
+    tls_verify: yes
     recreate: "yes"
-    published_ports:
-      - "{{vault_internal_ip}}:{{vault_port}}:8200"
-    image: "vault:{{vault_version}}"
-    command: "server"
-    volumes:
-      - "{{vault_config_path}}:/vault/config"
-      - "{{vault_log_path}}:/vault/logs"
-    capabilities:
-      - "IPC_LOCK"
+    published_ports: "{{published_ports|default(omit)}}"
+    image: "{{image}}"
+    command: "{{use_command|default(omit)}}"
+    volumes: "{{volume|default(omit)}}"
+    capabilities: "{{caps|default(omit)}}"
+    user: "{{as_user|default(omit)}}"
+    env: "{{use_env|default(omit)}}"    
   when: >
-    (vault_container_check.rc == 1 or
-    vault_container_check.stdout == "false" or
-    vault_config.changed|default(False) or
-    vault_tls_bits.changed)
+    vault_container_check.rc == 1 or
+    (vault_container_check.rc == 0 and
+    vault_container_check.stdout == "false") or
+    (vault_container_check.rc == 0 and
+    vault_version_check.rc == 0 and
+    (vault_version_check.stdout.find(image) < 0)) or
+    changed|default(False)

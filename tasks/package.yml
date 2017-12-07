@@ -6,22 +6,31 @@
   - "{{vault_bin_path}}"
   - "{{vault_cache}}"
   - "{{vault_install_directory}}"
-- name: "check for existing binary"
+- name: "check for existing versioned binary"
   stat:
     path: "{{vault_binary}}"
   register: vault_binary_exists
+- name: "check for existing binary"
+  stat:
+    path: "{{vault_bin_path}}/vault"
+  register: vault_exists
+- name: "remove existing vault binary if not a link"
+  file:
+    path: "{{vault_bin_path}}/vault"
+    state: absent
+  when: vault_exists.stat.exists and not vault_exists.stat.islnk
 - name: "download vault binary"
   get_url:
     url: "{{vault_download_url}}"
     dest: "{{vault_download_dest}}"
-  when: "vault_binary_exists.stat.exists == False"
+  when: not vault_binary_exists.stat.exists
 - name: "extract zip"
   unarchive:
     src: "{{vault_cache}}/vault-{{vault_version}}.zip"
     dest: "{{vault_install_directory}}"
     creates: "{{vault_binary}}"
     copy: "no"
-  when: "vault_binary_exists.stat.exists == False"
+  when: not vault_binary_exists.stat.exists
 - name: "link binary"
   file:
     path: "{{vault_bin_path}}/vault"

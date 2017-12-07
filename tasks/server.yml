@@ -1,24 +1,5 @@
-- name: "allow vault access"
-  ufw:
-    from_ip: "0.0.0.0/0"
-    to_ip: "{{vault_internal_ip}}"
-    direction: "in"
-    proto: "tcp"
-    rule: "allow"
-    to_port: "{{vault_port}}"
-- name: "set vault dns"
-  become: no
-  delegate_to: 'localhost'
-  route53:
-    zone: "{{vault_zoneid}}"
-    record: "{{vault_url}}"
-    value: "{{vault_ip}}"
-    type: "A"
-    ttl: "{{vault_dns_ttl}}"
-    command: create
-    overwrite: yes
-  when: "vault_url and vault_zoneid and vault_ip"
-- name: "ensure bucket"
+- include: "network.yml"
+- name: "ensure s3 bucket"
   become: no
   delegate_to: 'localhost'
   s3:
@@ -56,14 +37,44 @@
     mode: "0660"
     state: "file"
   ignore_errors: true
-- name: "copy tls bits"
+- name: "copy tls pieces"
   copy:
-    src: "{{dotfiles}}/vault/{{vault_cert}}.{{item}}"
-    dest: "{{vault_config_path}}/server.{{item}}"
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
     mode: "0600"
-  with_items:
-    - "crt"
-    - "key"
+  with_items: "{{vault_tls_files}}"
   register: vault_tls_bits
+- include: "docker_volume.yml"
+  volume_name: "config"
+  volume_source: "{{vault_config_path}}"
+  when: vault_type == "docker"  
+- include: "docker_volume.yml"
+  volume_name: "logs"
+  volume_source: "{{vault_log_path}}"
+  when: vault_type == "docker"
+- name: "get user id"
+  getent:
+    database: "passwd"
+    key: "{{vault_user}}"
+- name: "get group id"
+  getent:
+    database: "group"
+    key: "{{vault_group}}"
+- set_fact:
+    vault_user_id: "{{getent_passwd[vault_user][1]}}"
+    vault_group_id: "{{getent_group[vault_group][1]}}"    
+- include: "docker.yml"
+  container_name: "{{vault_docker_name}}"
+  published_ports:
+    - "{{vault_internal_ip}}:{{vault_port}}:8200"
+  image: "{{vault_docker_image}}:{{vault_version}}"
+  use_command: "server"
+  volume:
+    - "{{vault_docker_name}}_config:/vault/config"
+    - "{{vault_docker_name}}_logs:/vault/logs"
+  caps:
+    - "IPC_LOCK"
+  changed: "{{vault_config.changed or vault_tls_bits.changed}}"
+  when: vault_type == "docker"  

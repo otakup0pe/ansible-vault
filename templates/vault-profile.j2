@@ -1,6 +1,11 @@
 
 # -*-Shell-script-*-
 
+HAZ_SAFE=""
+if which safe &> /dev/null ; then
+    HAZ_SAFE="yes"
+fi
+
 {% if hcvswitch_install -%}
 export HCVSWITCH_PATH="{{hcvswitch_path}}"
 . "${HCVSWITCH_PATH}/init.sh"
@@ -87,19 +92,27 @@ function aomi-docker {
 }
 
 function vault-whoami {
+    local ACCESSOR
+    if [ $# == 1 ] ; then
+        ACCESSOR="$1"
+    fi
     local json
-    json=$(vault token-lookup -format=json 2> /dev/null)
+    if [ -z "$ACCESSOR" ] ; then
+        json=$(vault token-lookup -format=json 2> /dev/null)
+    else
+        json=$(vault token-lookup -format=json -accessor "$ACCESSOR" 2> /dev/null || vault token-lookup -format=json "$ACCESSOR")
+    fi
     if [ $? != 0 ] ; then
         echo "Unable to query Vault"
     else
         local now=$(date "+%s")
         local created=$(jq -cMr .data.creation_time <<< "$json")
         local duration=$(jq -cMr .data.creation_ttl <<< "$json")
-        if [ "$duration" != "0" ] ; then
+        if [ ! -z "$ACCESSOR" ] || [ "$duration" != "0" ] ; then
             local life=$((now - created))
             local remaining=$((duration - life))
             local rem_str=""
-            if [ "$remaining" -lt 86400 ] ; then
+            if [ ! -z "$ACCESSOR" ] || [ "$remaining" -lt 86400 ] ; then
                 rem_str=" (${remaining}s)"
             fi
         fi
@@ -115,6 +128,22 @@ function vault-ls() {
     if [ -z "$1" ] ; then
         vault mounts
     else
-        vault list "$1"
+        if [ ! -z "$HAZ_SAFE" ] ; then
+            safe ls -1 "$1"
+        else
+            vault list "$1"
+        fi
     fi
+}
+
+function vault-health() {
+    local RESP=$(curl -sL "${VAULT_ADDR}/v1/sys/health" 2> /dev/null)
+    local INIT=$(jq -Mr ".initialized" <<< "$RESP" 2> /dev/null)
+    local SEALED=$(jq -Mr ".sealed" <<< "$RESP" 2> /dev/null)
+    local VERSION=$(jq -Mr ".version" <<< "$RESP" 2> /dev/null)
+    if [ "$VERSION" == "null" ] && [ "$INIT" == "true" ] ; then
+        VERSION="OG"
+    fi
+    echo "Vault ${VAULT_ADDR}, Version ${VERSION}"
+    echo "Initialized:${INIT} Sealed:${SEALED}"
 }

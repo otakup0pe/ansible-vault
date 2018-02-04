@@ -18,4 +18,4 @@
     ttl: "{{vault_dns_ttl}}"
     command: create
     overwrite: yes
-  when: "vault_url and vault_zoneid and vault_ip"
+  when: vault_dns and vault_url and vault_zoneid and vault_ip

@@ -1,17 +1,17 @@
 - debug:
     msg: "Trying to manifest a Vault {{vault_type}}"
-- include: "pre.yml"
-- include: "package.yml"
+- include_tasks: "pre.yml"
+- include_tasks: "package.yml"
   when: >
     vault_type != "docker" and
     ( vault_type == "client" or vault_type == "server" )
-- include: "server.yml"
+- include_tasks: "server.yml"
   when: vault_type == "server" or vault_type == "docker"
-- include: "ui.yml"
+- include_tasks: "ui.yml"
   when: vault_type == "ui"  
-- include: "workstation.yml"
+- include_tasks: "workstation.yml"
   when: vault_workstation
-- include: "ssh.yml"
+- include_tasks: "ssh.yml"
   when: vault_ssh
 - name: "set workstation vaultrc format"
   set_fact:

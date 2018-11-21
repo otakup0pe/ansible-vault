@@ -11,8 +11,6 @@ vault_ssh_download_dest: "{{vault_cache}}/vault-ssh-{{vault_version}}.zip"
 vault_ssh_binary: "{{vault_ssh_directory}}/vault-ssh-helper"
 vault_docker_apt:
   - bindfs
-  - docker.io
-  - bridge-utils
 
 vault_tls_files:
   - src: "{{vault_tls_cert}}"

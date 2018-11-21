@@ -3,7 +3,6 @@
   when: "ansible_machine == 'x86_64'"
 - name: "install some prereqs"
   apt:
-    pkg: "{{item}}"
+    pkg: "{{vault_docker_apt}}"
     state: "latest"
-  with_items: "{{vault_docker_apt}}"
   when: vault_type == "docker"

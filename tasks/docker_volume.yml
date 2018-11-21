@@ -10,6 +10,7 @@
     cert_path:  "{{vault_docker_cert_path}}"
     tls_hostname: "{{vault_docker_host}}"
     tls_verify: yes
+    ssl_version: "SSLv23"
 - name: "check volume data type"
   stat:
     path: "/var/lib/docker/volumes/{{vault_docker_name}}_{{volume_name}}/_data"

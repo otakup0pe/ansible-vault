@@ -38,7 +38,8 @@
     volumes: "{{volume|default(omit)}}"
     capabilities: "{{caps|default(omit)}}"
     user: "{{as_user|default(omit)}}"
-    env: "{{use_env|default(omit)}}"    
+    env: "{{use_env|default(omit)}}"
+    ssl_version: "SSLv23"
   when: >
     vault_container_check.rc == 1 or
     (vault_container_check.rc == 0 and

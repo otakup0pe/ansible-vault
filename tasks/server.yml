@@ -1,4 +1,26 @@
 - include_tasks: "network.yml"
+- name: "validate vault_backend"
+  fail:
+    msg: "vault_backend must be one of memory, file, or s3"
+  when: >
+    vault_backend != "s3" and
+    vault_backend != "file" and
+    vault_backend != "memory"
+- name: "validate s3 backend details"
+  fail:
+    msg: "vault_bucket, vault_aws_key, vault_aws_secret, vault_region must be set"
+  when: >
+    vault_backend == "s3" and
+    (not vault_bucket or
+     not vault_aws_key or
+     not vault_aws_secret or
+     not vault_aws_region)
+- name: "validate file backend details"
+  fail:
+    msg: "vault_backend_path must be set"
+  when: >
+    vault_backend == "file" and
+    not vault_backend_path
 - name: "ensure s3 bucket"
   become: no
   delegate_to: 'localhost'
@@ -6,6 +28,24 @@
     bucket: "{{vault_bucket}}"
     mode: "create"
     region: "{{vault_aws_region}}"
+  when: vault_backend == "s3"
+- name: "ensure vault group is present"
+  group:
+    name: "{{vault_group}}"
+    state: "present"
+- name: "ensure vault user is present"
+  user:
+    name: "{{vault_user}}"
+    group: "{{vault_group}}"
+    state: "present"
+- name: "create vault backend location"
+  file:
+    path: "{{vault_backend_path}}"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "0770"
+    state: "directory"
+  when: vault_backend == "file"
 - name: "ensure vault config directory exists"
   file:
     path: "{{vault_config_path}}"
@@ -28,15 +68,6 @@
     group: "{{vault_group}}"
     mode: "2770"
     state: "directory"
-# why is this here? do the perms just break sometimes?
-- name: "ensure permissions are fine"
-  file:
-    path: "{{vault_log_path}}/audit.log"
-    owner: "{{vault_user}}"
-    group: "{{vault_group}}"
-    mode: "0660"
-    state: "file"
-  ignore_errors: true
 - name: "copy tls pieces"
   copy:
     src: "{{item.src}}"
@@ -56,6 +87,11 @@
     volume_name: "logs"
     volume_source: "{{vault_log_path}}"
   when: vault_type == "docker"
+- include_tasks: "docker_volume.yml"
+  vars:
+    volume_name: "backend"
+    volume_source: "{{vault_backend_path}}"
+  when: vault_type == "docker" and vault_backend == file
 - name: "get user id"
   getent:
     database: "passwd"
@@ -64,9 +100,23 @@
   getent:
     database: "group"
     key: "{{vault_group}}"
-- set_fact:
+- name: "set uid/gid facts"
+  set_fact:
     vault_user_id: "{{getent_passwd[vault_user][1]}}"
-    vault_group_id: "{{getent_group[vault_group][1]}}"    
+    vault_group_id: "{{getent_group[vault_group][1]}}"
+- name: "set normal volume facts"
+  set_fact:
+    vault_volumes:
+      - "{{vault_docker_name}}_config:/vault/config"
+      - "{{vault_docker_name}}_logs:/vault/logs"
+  when: vault_type == "docker" and vault_backend != "file"
+- name: "set file backend volume facts"
+  set_fact:
+    vault_volumes:
+      - "{{vault_docker_name}}_config:/vault/config"
+      - "{{vault_docker_name}}_logs:/vault/logs"
+      - "{{vault_docker_name}}_backend:/vault/backend"      
+  when: vault_type == "docker" and vault_backend != "file"  
 - include_tasks: "docker.yml"
   vars:
     container_name: "{{vault_docker_name}}"
@@ -74,10 +124,35 @@
       - "{{vault_internal_ip}}:{{vault_port}}:8200"
     image: "{{vault_docker_image}}:{{vault_version}}"
     use_command: "server"
-    volume:
-      - "{{vault_docker_name}}_config:/vault/config"
-      - "{{vault_docker_name}}_logs:/vault/logs"
+    volume: "{{vault_volumes}}"
     caps:
       - "IPC_LOCK"
     changed: "{{vault_config.changed or vault_tls_bits.changed}}"
   when: vault_type == "docker"  
+- name: "create upstart script"
+  template:
+    src: "vault.service"
+    dest: "/etc/systemd/system/vault.service"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  when: vault_type == "server"
+- name: "ensure vault is running"
+  service:
+    name: "vault"
+    enabled: yes
+    state: started
+  when: vault_type == "server"
+  register: vault_started
+- name: "wait for vault"
+  uri:
+    url: "https://{{vault_url}}:{{vault_port}}"
+    status_code: 404
+  register: vault_alive
+  until: vault_alive.status|default('') == 404
+  retries: 10
+  delay: 1
+- name: "restart on config change"
+  service:
+    state: restarted
+  when: vault_config.changed and not vault_started.changed

@@ -137,7 +137,7 @@ function vault-ls() {
 }
 
 function vault-health() {
-    local RESP=$(curl -sL "${VAULT_ADDR}/v1/sys/health" 2> /dev/null)
+    local RESP=$(curl -sL "${VAULT_ADDR%/}/v1/sys/health" 2> /dev/null)
     local INIT=$(jq -Mr ".initialized" <<< "$RESP" 2> /dev/null)
     local SEALED=$(jq -Mr ".sealed" <<< "$RESP" 2> /dev/null)
     local VERSION=$(jq -Mr ".version" <<< "$RESP" 2> /dev/null)

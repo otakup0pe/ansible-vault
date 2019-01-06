@@ -8,16 +8,24 @@ vault_user: "docker"
 # preset docker container has these basically hardcoded
 vault_docker_uid: "100"
 vault_docker_gid: "1000"
-vault_group: "docker"
+vault_group: "{{vault_user}}"
 vault_port: "8200"
 vault_disable_mlock: false
 # note that on things like ec2 the internal ip might be different
 vault_ip: "127.0.0.1"
 vault_internal_ip: "{{vault_ip}}"
-vault_aws_region: "us-west-2"
+vault_bind_ip: "0.0.0.0"
+vault_backend: "memory" # or s3 or file
+# if backend is aws
+vault_bucket: ~
+vault_aws_key: ~
+vault_aws_secret: ~
+vault_aws_region: ~
+# if backend is file
+vault_backend_path: ~
 vault_cache: "/var/cache/ansible-vault"
 vault_docker_image: "vault"
-vault_version: "0.6.2"
+vault_version: "1.0.1"
 vault_dns_ttl: "10800"
 vault_profile_path: "/etc/profile.d"
 vault_tls_cert: ~

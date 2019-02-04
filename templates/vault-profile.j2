@@ -126,7 +126,7 @@ function vault-whoami {
 
 function vault-ls() {
     if [ -z "$1" ] ; then
-        vault mounts
+        vault secrets list
     else
         if [ ! -z "$HAZ_SAFE" ] ; then
             safe ls -1 "$1"

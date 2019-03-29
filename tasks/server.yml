@@ -91,7 +91,7 @@
   vars:
     volume_name: "backend"
     volume_source: "{{vault_backend_path}}"
-  when: vault_type == "docker" and vault_backend == file
+  when: vault_type == "docker" and vault_backend == "file"
 - name: "get user id"
   getent:
     database: "passwd"
@@ -129,7 +129,7 @@
       - "IPC_LOCK"
     changed: "{{vault_config.changed or vault_tls_bits.changed}}"
   when: vault_type == "docker"  
-- name: "create upstart script"
+- name: "create systemd script"
   template:
     src: "vault.service"
     dest: "/etc/systemd/system/vault.service"
@@ -146,7 +146,7 @@
   register: vault_started
 - name: "wait for vault"
   uri:
-    url: "https://{{vault_url}}:{{vault_port}}"
+    url: "https://{{vault_internal_ip}}:{{vault_port}}"
     status_code: 404
   register: vault_alive
   until: vault_alive.status|default('') == 404

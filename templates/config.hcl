@@ -9,7 +9,7 @@ storage "s3" {
 storage "inmem" {}
 {% elif vault_backend == "file" %}
 storage "file" {
-{% if vault_backend == "docker" %}
+{% if vault_type == "docker" %}
   path = "/vault/backend"
 {% else %}
   path = "{{vault_backend_path}}"
@@ -19,7 +19,7 @@ storage "file" {
 disable_mlock = {{vault_disable_mlock|lower}}
 listener "tcp" {
   address = "{{vault_bind_ip}}:{{vault_port}}"
-{% if vault_backend == "docker" %}
+{% if vault_type == "docker" %}
   tls_cert_file = "/vault/config/server.crt"
   tls_key_file = "/vault/config/server.key"
 {% else %}

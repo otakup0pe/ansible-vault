@@ -39,6 +39,7 @@ vault_docker_name: "some_vault"
 vault_docker_restart: "unless-stopped"
 vault_host: "localhost"
 vault_workstation: no
+vault_wait_ssl: no
 
 hcvswitch_install: yes
 hcvswitch_path: "{{vault_path}}/hcvswitch"

@@ -148,6 +148,7 @@
   uri:
     url: "https://{{vault_internal_ip}}:{{vault_port}}"
     status_code: 404
+    validate_certs: "{{vault_wait_ssl}}"
   register: vault_alive
   until: vault_alive.status|default('') == 404
   retries: 10

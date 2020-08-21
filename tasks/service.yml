@@ -1,0 +1,25 @@
+---
+- name: "install some systemd"
+  template:
+    src: "vault-systemd.j2"
+    dest: "/etc/systemd/system/vault.service"
+    owner: "root"
+    group: "root"
+    mode: "0744"
+  register: vault_systemd
+- name: "enable and start vault"
+  systemd:
+    daemon_reload: true
+    enabled: true
+    state: "started"
+    name: "vault"
+  when: vault_systemd.changed
+  register: vault_started
+- name: "restart vault if needed"
+  systemd:
+    daemon_reload: true
+    name: "vault"
+    state: "restarted"
+  when: >
+    (vault_config.changed or vault_tls_bits.changed)
+    and not vault_started.changed

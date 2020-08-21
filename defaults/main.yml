@@ -1,10 +1,12 @@
+---
 vault_type: "docker" # or server or client
 vault_path: "/opt/vault"
 vault_config_path: "{{vault_path}}/etc"
 vault_log_path: "{{vault_path}}/logs"
 vault_bin_path: "{{vault_path}}/bin"
-vault_user: "dockit"
-vault_group: "docker"
+vault_user: "vault"
+vault_group: "vault"
+vault_create: true # whether or not to auto-create user/group if needed
 vault_port: "8200"
 # note that on things like ec2 the internal ip might be different
 vault_ip: "127.0.0.1"

@@ -15,8 +15,9 @@ function vault-cluster-start() {
     docker run -d --name=dev-consul consul
     local CONSUL_IP=$(docker inspect dev-consul| jq -Mr ".[0].NetworkSettings.IPAddress")
     vault-docker-start cluster "$CONSUL_IP"
-    vault-docker-start cluster "$CONSUL_IP" 8201    
+    vault-docker-start cluster "$CONSUL_IP" 8201
 }
+
 function vault-cluster-stop() {
     vault-docker-destroy dev-consul
     for id in $(docker ps | grep 'dev-vault-' | awk '{print $1}') ; do
@@ -63,6 +64,7 @@ function vault-docker-start() {
     fi
     "${CMD[@]}"
 }
+
 alias vault-docker-stop="docker kill dev-vault &> /dev/null ; docker rm dev-vault &> /dev/null"
 function aomi-docker {
     local aomi_image="autodesk/aomi:latest"

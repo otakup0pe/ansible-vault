@@ -5,6 +5,8 @@
   when: "vault_type != 'client'"
 - include: "docker.yml"
   when: "vault_type == 'docker'"
+- include: "service.yml"
+  when: "vault_type == 'server'"
 - include: "workstation.yml"
   when: vault_workstation
 - name: "set workstation vaultrc format"

@@ -1,3 +1,46 @@
 - set_fact:
     vault_download_url: "{{vault_pre_url}}{{ansible_system|lower}}_amd64.zip"
   when: "ansible_machine == 'x86_64'"
+- name: "check for user"
+  getent:
+    database: "passwd"
+    key: "{{vault_user}}"
+    fail_key: false
+  register: vault_user_details
+- set_fact:
+    vault_user_exists: "{% if getent_passwd[vault_user] != None %}true{% else %}false{% endif %}"
+
+- name: "create user if non existent"
+  user:
+    name: "{{vault_user}}"
+    comment: "auto created vault service user"
+    create_home: false
+    state: "present"
+  when: >
+    (not vault_user_exists) and vault_create
+
+- name: "check for group"
+  getent:
+    database: "group"
+    key: "{{vault_group}}"
+    fail_key: false
+  register: vault_group_details
+
+- set_fact:
+    vault_group_exists: "{% if getent_group[vault_group] != None %}true{% else %}false{% endif %}"
+
+- name: "create group if needed"
+  group:
+    name: "{{vault_group}}"
+    state: "present"
+  when: >
+    (not vault_group_exists) and vault_create
+
+- name: "add user to group if needed"
+  user:
+    name: "{{vault_user}}"
+    groups:
+      - "{{vault_group}}"
+    append: true
+  when: >
+    (not vault_group_exists) and vault_create

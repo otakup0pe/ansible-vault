@@ -1,11 +1,12 @@
+---
 - name: "create directories"
   file:
     path: "{{item}}"
     state: directory
   with_items:
-  - "{{vault_bin_path}}"
-  - "{{vault_cache}}"
-  - "{{vault_install_directory}}"
+    - "{{vault_bin_path}}"
+    - "{{vault_cache}}"
+    - "{{vault_install_directory}}"
 - name: "check for existing binary"
   stat:
     path: "{{vault_binary}}"

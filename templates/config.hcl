@@ -7,6 +7,11 @@ backend "s3" {
 
 listener "tcp" {
   address = "0.0.0.0:{{vault_port}}"
+{% if vault_type == "docker" %}
   tls_cert_file = "/vault/config/server.crt"
   tls_key_file = "/vault/config/server.key"
+{% else %}
+  tls_cert_file = "{{vault_config_path}}/server.crt"
+  tls_key_file = "{{vault_config_path}}/server.key"
+{% endif %}
 }

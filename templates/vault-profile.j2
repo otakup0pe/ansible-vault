@@ -90,7 +90,7 @@ function aomi-docker {
 
 function vault-whoami {
     local json
-    json=$(vault token-lookup -format=json 2> /dev/null)
+    json=$(vault token lookup -format=json 2> /dev/null)
     if [ $? != 0 ] ; then
         echo "Unable to query Vault"
     else
@@ -115,7 +115,7 @@ function vault-whoami {
 
 function vault-ls() {
     if [ -z "$1" ] ; then
-        vault mounts
+        vault secrets list
     else
         vault list "$1"
     fi

@@ -1,3 +1,4 @@
+---
 - name: "check hcvswitch_source"
   fail:
     msg: "hcvswitch_source must be set"

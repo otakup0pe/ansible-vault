@@ -1,5 +1,8 @@
+---
 - include: "hcvswitch.yml"
   when: hcvswitch_install
+- include: "safe.yml"
+  when: vault_safe_install
 - name: "render vault workstation profile"
   template:
     src: "vault-profile.j2"

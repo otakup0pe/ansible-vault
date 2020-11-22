@@ -7,6 +7,7 @@
     group: "root"
     mode: "0744"
   register: vault_systemd
+
 - name: "enable and start vault"
   systemd:
     daemon_reload: true
@@ -15,6 +16,7 @@
     name: "vault"
   when: vault_systemd.changed
   register: vault_started
+
 - name: "restart vault if needed"
   systemd:
     daemon_reload: true

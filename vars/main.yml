@@ -4,6 +4,6 @@ vault_download_dest: "{{vault_cache}}/vault-{{vault_version}}.zip"
 vault_install_directory: "{{vault_path}}/{{vault_version}}"
 vault_binary: "{{vault_install_directory}}/vault"
 
-hcvswitch_repo: "git@github.com:otakup0pe/hcvswitch.git"
+hcvswitch_repo: "https://github.com/otakup0pe/hcvswitch.git"
 
 vault_safe_url: "https://github.com/starkandwayne/safe/releases/download/v{{vault_safe_version}}/safe-linux-amd64"

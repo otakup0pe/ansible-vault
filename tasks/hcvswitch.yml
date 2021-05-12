@@ -3,6 +3,7 @@
   fail:
     msg: "hcvswitch_source must be set"
   when: "hcvswitch_config|default('') == ''"
+
 - name: "fetch from git"
   become: yes
   become_user: "{{vault_user}}"
@@ -12,6 +13,7 @@
     accept_hostkey: yes
     depth: 1
     update: "{{hcvswitch_update}}"
+
 - name: "copy hcvswitch config"
   copy:
     src: "{{hcvswitch_source}}"

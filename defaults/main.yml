@@ -28,7 +28,6 @@ hcvswitch_install: yes
 hcvswitch_path: "{{vault_path}}/hcvswitch"
 hcvswitch_config: "{{lookup('env', 'HOME')}}/.hcv.yml"
 hcvswitch_update: yes
-
 vault_safe_install: yes
 vault_safe_path: "{{vault_bin_path}}/safe"
 vault_safe_version: "1.5.8"

@@ -1,14 +1,23 @@
 ---
-- set_fact:
+- name: "create cache directory"
+  file:
+    path: "{{vault_cache}}"
+    state: "directory"
+
+- name: "set proper 64 bit download"
+  set_fact:
     vault_download_url: "{{vault_pre_url}}{{ansible_system|lower}}_amd64.zip"
   when: "ansible_machine == 'x86_64'"
+
 - name: "check for user"
   getent:
     database: "passwd"
     key: "{{vault_user}}"
     fail_key: false
   register: vault_user_details
-- set_fact:
+
+- name: "determine if vault user exists"
+  set_fact:
     vault_user_exists: "{% if getent_passwd[vault_user] != None %}true{% else %}false{% endif %}"
 
 - name: "create user if non existent"
@@ -27,7 +36,8 @@
     fail_key: false
   register: vault_group_details
 
-- set_fact:
+- name: "determine if vault group exists"
+  set_fact:
     vault_group_exists: "{% if getent_group[vault_group] != None %}true{% else %}false{% endif %}"
 
 - name: "create group if needed"

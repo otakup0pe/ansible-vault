@@ -6,6 +6,7 @@
     group: "{{vault_group}}"
     mode: "0770"
     state: "directory"
+
 - name: "generate configuration"
   template:
     src: "config.hcl"
@@ -14,6 +15,7 @@
     group: "{{vault_group}}"
     mode: "0660"
   register: vault_config
+
 - name: "create log directory"
   file:
     path: "{{vault_log_path}}"
@@ -21,15 +23,7 @@
     group: "{{vault_group}}"
     mode: "2770"
     state: "directory"
-# why is this here? do the perms just break sometimes?
-- name: "ensure permissions are fine"
-  file:
-    path: "{{vault_log_path}}/audit.log"
-    owner: "{{vault_user}}"
-    group: "{{vault_group}}"
-    mode: "0660"
-    state: "file"
-  ignore_errors: true
+
 - name: "copy tls bits"
   copy:
     src: "{{dotfiles}}/vault/{{vault_cert}}.{{item}}"

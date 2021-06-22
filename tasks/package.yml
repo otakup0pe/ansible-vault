@@ -44,4 +44,3 @@
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
     mode: "{{vault_bin_mode}}"
-  when: vault_binary_extract.changed

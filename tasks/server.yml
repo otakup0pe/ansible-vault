@@ -4,7 +4,7 @@
     path: "{{vault_config_path}}"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
-    mode: "0770"
+    mode: "{{vault_dir_mode}}"
     state: "directory"
 
 - name: "generate configuration"
@@ -13,7 +13,7 @@
     dest: "{{vault_config_path}}/config.hcl"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
-    mode: "0660"
+    mode: "{{vault_config_mode}}"
   register: vault_config
 
 - name: "create log directory"
@@ -21,7 +21,7 @@
     path: "{{vault_log_path}}"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
-    mode: "2770"
+    mode: "{{vault_log_mode}}"
     state: "directory"
 
 - name: "copy tls bits"
@@ -30,7 +30,7 @@
     dest: "{{vault_config_path}}/server.{{item}}"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
-    mode: "0600"
+    mode: "{{vault_file_mode}}"
   with_items:
     - "crt"
     - "key"

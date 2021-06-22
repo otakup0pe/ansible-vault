@@ -2,11 +2,12 @@
 - name: "check for running container"
   command: >
     docker inspect --format \{\{.State.Running\}\} das_vault
-  ignore_errors: True
-  changed_when: no
+  ignore_errors: true
+  changed_when: false
   register: vault_container_check
+
 - name: "run container"
-  become: no
+  become: false
   delegate_to: 'localhost'
   docker_container:
     name: "{{vault_docker_name}}"
@@ -15,7 +16,7 @@
     key_path: "{{vault_docker_key_path}}"
     cert_path:  "{{vault_docker_cert_path}}"
     tls_hostname: "{{vault_docker_host}}"
-    tls: yes
+    tls: true
     recreate: "yes"
     published_ports:
       - "{{vault_internal_ip}}:{{vault_port}}:8200"

@@ -5,12 +5,12 @@
   when: "hcvswitch_config|default('') == ''"
 
 - name: "fetch from git"
-  become: yes
+  become: true
   become_user: "{{vault_user}}"
   git:
     repo: "{{hcvswitch_repo}}"
     dest: "{{hcvswitch_path}}"
-    accept_hostkey: yes
+    accept_hostkey: true
     depth: 1
     update: "{{hcvswitch_update}}"
 
@@ -20,4 +20,4 @@
     dest: "{{hcvswitch_config}}"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
-    mode: 0770
+    mode: "{{vault_dir_mode}}"

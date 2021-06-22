@@ -2,7 +2,10 @@
 - name: "create directories"
   file:
     path: "{{item}}"
-    state: directory
+    state: "directory"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "{{vault_dir_mode}}"
   with_items:
     - "{{vault_bin_path}}"
     - "{{vault_install_directory}}"
@@ -16,7 +19,9 @@
   get_url:
     url: "{{vault_download_url}}"
     dest: "{{vault_download_dest}}"
-    mode: "0600"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "{{vault_file_mode}}"
   when: "vault_binary_exists.stat.exists == False"
 
 - name: "extract zip"
@@ -25,6 +30,9 @@
     dest: "{{vault_install_directory}}"
     creates: "{{vault_binary}}"
     copy: "no"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "{{vault_file_mode}}"
   when: "vault_binary_exists.stat.exists == False"
   register: vault_binary_extract
 
@@ -33,5 +41,7 @@
     dest: "{{vault_bin_path}}/vault"
     src: "{{vault_binary}}"
     remote_src: true
-    force: yes
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "{{vault_bin_mode}}"
   when: vault_binary_extract.changed

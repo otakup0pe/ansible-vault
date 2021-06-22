@@ -6,6 +6,10 @@ vault_log_path: "{{vault_path}}/logs"
 vault_bin_path: "{{vault_path}}/bin"
 vault_user: "vault"
 vault_group: "vault"
+vault_dir_mode: "0770"
+vault_file_mode: "0660"
+vault_bin_mode: "0770"
+vault_log_mode: "2770"
 vault_create: true # whether or not to auto-create user/group if needed
 vault_port: "8200"
 # note that on things like ec2 the internal ip might be different

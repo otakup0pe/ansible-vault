@@ -3,10 +3,11 @@
   fail:
     msg: "vault/safe install is only supported on amd64"
   when: ansible_architecture|lower != 'x86_64'
+
 - name: "fetch safe tool"
   get_url:
     url: "{{vault_safe_url}}"
     dest: "{{vault_safe_path}}"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
-    mode: "0755"
+    mode: "{{vault_bin_mode}}"

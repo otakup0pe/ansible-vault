@@ -3,6 +3,9 @@
   file:
     path: "{{vault_cache}}"
     state: "directory"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "{{vault_dir_mode}}"
 
 - name: "set proper 64 bit download"
   set_fact:

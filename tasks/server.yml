@@ -24,14 +24,32 @@
     mode: "{{vault_log_mode}}"
     state: "directory"
 
-- name: "copy tls bits"
+- name: "copy tls bits from vault"
   copy:
-    src: "{{dotfiles}}/vault/{{vault_cert}}.{{item}}"
-    dest: "{{vault_config_path}}/server.{{item}}"
+    dest: "{{item.dest}}"
+    content: "{{lookup('hashi_vault', item.src)}}"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
-    mode: "{{vault_file_mode}}"
-  with_items:
-    - "crt"
-    - "key"
+    mode: "0600"
+  loop:
+    - dest: "{{vault_config_path}}/server.crt"
+      src: "{{vault_cert_path}}"
+    - dest: "{{vault_config_path}}/server.key"
+      src: "{{vault_key_path}}"
+  when: vault_cert_source == 'vault'
   register: vault_tls_bits
+
+- name: "copy tls bits from files"
+  copy:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "0600"
+  loop:
+    - dest: "{{vault_config_path}}/server.crt"
+      src: "{{vault_cert_path}}"
+    - dest: "{{vault_config_path}}/server.key"
+      src: "{{vault_key_path}}"
+  register: vault_tls_bits
+  when: vault_cert_source == 'file'

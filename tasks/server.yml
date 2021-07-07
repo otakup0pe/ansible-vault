@@ -13,7 +13,7 @@
     dest: "{{vault_config_path}}/config.hcl"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
-    mode: "{{vault_config_mode}}"
+    mode: "{{vault_file_mode}}"
   register: vault_config
 
 - name: "create log directory"

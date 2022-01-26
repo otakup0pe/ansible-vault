@@ -1,12 +1,4 @@
 ---
-- name: "create cache directory"
-  file:
-    path: "{{vault_cache}}"
-    state: "directory"
-    owner: "{{vault_user}}"
-    group: "{{vault_group}}"
-    mode: "{{vault_dir_mode}}"
-
 - name: "set proper 64 bit download"
   set_fact:
     vault_download_url: "{{vault_pre_url}}{{ansible_system|lower}}_amd64.zip"
@@ -58,3 +50,11 @@
     append: true
   when: >
     (not vault_group_exists) and vault_create
+
+- name: "create cache directory"
+  file:
+    path: "{{vault_cache}}"
+    state: "directory"
+    owner: "{{vault_user}}"
+    group: "{{vault_group}}"
+    mode: "{{vault_dir_mode}}"

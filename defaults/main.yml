@@ -10,14 +10,15 @@ vault_dir_mode: "0770"
 vault_file_mode: "0660"
 vault_bin_mode: "0770"
 vault_log_mode: "2770"
-vault_create: true # whether or not to auto-create user/group if needed
+vault_profile_mode: "0664"
+vault_create: true  # whether or not to auto-create user/group if needed
 vault_port: "8200"
 # note that on things like ec2 the internal ip might be different
 vault_ip: "127.0.0.1"
 vault_internal_ip: "{{vault_ip}}"
 vault_aws_region: "us-west-2"
 vault_cache: "/var/cache/ansible-vault"
-vault_cert_source: "vault" # or file, in which case vault_cert_path should be a file path
+vault_cert_source: "vault"  # or file, in which case vault_cert_path should be a file path
 vault_cert_path: "secret/data/vault:cert"
 vault_key_path: "secret/data/vault:key"
 vault_version: "0.6.2"
@@ -29,12 +30,14 @@ vault_docker_key_path: "{{lookup('env', 'HOME')}}/.docker/machines/machine/local
 vault_docker_cert_path: "{{lookup('env', 'HOME')}}/.docker/machines/machine/local/cert.pem"
 vault_docker_tls_hostname: "{{ansible_fqdn}}"
 vault_docker_name: "some_vault"
+vault_nolog: true
 
-vault_workstation: no
-hcvswitch_install: yes
+vault_workstation: false
+hcvswitch_install: true
 hcvswitch_path: "{{vault_path}}/hcvswitch"
 hcvswitch_config: "{{lookup('env', 'HOME')}}/.hcv.yml"
-hcvswitch_update: yes
-vault_safe_install: yes
+hcvswitch_update: true
+
+vault_safe_install: true
 vault_safe_path: "{{vault_bin_path}}/safe"
 vault_safe_version: "1.5.8"

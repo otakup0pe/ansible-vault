@@ -19,18 +19,24 @@
 - name: "set workstation vaultrc format"
   set_fact:
     vault_rc: "{{vault_profile_path}}/.vaultrc"
+    vaultrc_user: "{{vault_user}}"
+    vaultrc_group: "{{vault_group}}"
+    vaultrc_mode: "{{vault_file_mode}}"
   when: vault_workstation
 
 - name: "set global vaultrc format"
   set_fact:
-    vault_rc: "{{vault_profile_path}}/vault_profile"
-  when: "not vault_workstation"
+    vault_rc: "/etc/profile.d/vault_profile.sh"
+    vaultrc_user: "root"
+    vaultrc_group: "root"
+    vaultrc_mode: "{{vault_profile_mode}}"
+  when: not vault_workstation
 
 - name: "render vaultrc"
   template:
     src: "vault-rc.j2"
     dest: "{{vault_rc}}"
-    owner: "{{vault_user}}"
-    group: "{{vault_group}}"
-    mode: "{{vault_file_mode}}"
+    owner: "{{vaultrc_user}}"
+    group: "{{vaultrc_group}}"
+    mode: "{{vaultrc_mode}}"
   when: "vault_workstation or vault_type != 'docker'"

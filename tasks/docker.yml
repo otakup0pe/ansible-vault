@@ -14,7 +14,7 @@
     docker_host: "tcp://{{vault_docker_host}}:2376"
     cacert_path: "{{vault_docker_cacert_path}}"
     key_path: "{{vault_docker_key_path}}"
-    cert_path:  "{{vault_docker_cert_path}}"
+    cert_path: "{{vault_docker_cert_path}}"
     tls_hostname: "{{vault_docker_host}}"
     tls: true
     recreate: "yes"

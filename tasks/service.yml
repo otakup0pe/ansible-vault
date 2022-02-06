@@ -25,5 +25,6 @@
   when: >
     (vault_config.changed
     or vault_tls_file_bits.changed
-    or vault_tls_vault_bits.changed)
+    or vault_tls_vault_bits.changed
+    or vault_binary_copy.changed)
     and not vault_started.changed

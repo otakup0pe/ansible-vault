@@ -15,3 +15,5 @@ listener "tcp" {
   tls_key_file = "{{vault_config_path}}/server.key"
 {% endif %}
 }
+
+log_level = "{{ vault_log_level|capitalize }}"

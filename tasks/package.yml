@@ -10,11 +10,6 @@
     - "{{vault_bin_path}}"
     - "{{vault_install_directory}}"
 
-- name: "check for existing binary"
-  stat:
-    path: "{{vault_binary}}"
-  register: vault_binary_exists
-
 - name: "download vault binary"
   get_url:
     url: "{{vault_download_url}}"
@@ -22,7 +17,6 @@
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
     mode: "{{vault_file_mode}}"
-  when: "vault_binary_exists.stat.exists == False"
 
 - name: "extract zip"
   unarchive:
@@ -33,14 +27,28 @@
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
     mode: "{{vault_file_mode}}"
-  when: "vault_binary_exists.stat.exists == False"
-  register: vault_binary_extract
 
-- name: "copy binary"
-  copy:
-    dest: "{{vault_bin_path}}/vault"
-    src: "{{vault_binary}}"
-    remote_src: true
+- name: "ensure permissions"
+  file:
+    path: "{{vault_binary}}"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
     mode: "{{vault_bin_mode}}"
+
+- name: "check for existing binary"
+  stat:
+    path: "{{vault_bin_path}}/vault"
+  register: vault_binary_existing
+
+- name: "remove non-symlink binary location"
+  file:
+    path: "{{vault_bin_path}}/vault"
+    state: "absent"
+  when: not vault_binary_existing.stat.islnk
+
+- name: "link binary"
+  file:
+    state: "link"
+    path: "{{vault_bin_path}}/vault"
+    src: "{{vault_binary}}"
+  register: vault_binary_copy

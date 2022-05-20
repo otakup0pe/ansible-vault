@@ -44,7 +44,7 @@
   file:
     path: "{{vault_bin_path}}/vault"
     state: "absent"
-  when: not vault_binary_existing.stat.islnk
+  when: vault_binary_existing.stat.exists and not vault_binary_existing.stat.islnk
 
 - name: "link binary"
   file:

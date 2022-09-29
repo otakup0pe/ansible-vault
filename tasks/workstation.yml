@@ -1,8 +1,12 @@
 ---
 - include: "hcvswitch.yml"
   when: hcvswitch_install
-- include: "safe.yml"
-  when: vault_safe_install
+
+- name: "remove unused software"
+  file:
+    path: "{{vault_bin_path}}/safe"
+    state: "absent"
+
 - name: "render vault workstation profile"
   template:
     src: "vault-profile.j2"

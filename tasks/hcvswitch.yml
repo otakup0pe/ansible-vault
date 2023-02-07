@@ -13,6 +13,7 @@
     accept_hostkey: true
     depth: 1
     update: "{{hcvswitch_update}}"
+    version: "mainline"
 
 - name: "copy hcvswitch config"
   copy:

@@ -80,13 +80,12 @@ function vault-whoami {
 	local rem_str=""
 	local life=$((now - created))
         if [ "$creation_duration" != "0" ] ; then
-	    if [ "$creation_duration" == "$real_duration" ] ; then
-		local remaining=$((creation_duration - life))
-	    else
-		local remaining=$((real_duration - life))
-	    fi
-	    if [ "$remaining" -lt 86400 ] ; then
+	    local remaining=$((creation_duration - life))
+	    if [ "$remaining" == "$real_duration" ] \
+		   && [ "$remaining" -lt 3600 ] ; then
                 rem_str=" (${remaining}s)"
+	    elif [ "$real_duration" -lt 3600 ] ; then
+		rem_str=" (${real_duration}s [ext])"
 	    fi
 	else
 	    rem_str=" (for ever)"

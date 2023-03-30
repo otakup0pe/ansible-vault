@@ -2,7 +2,6 @@
 
 ![Maintenance](https://img.shields.io/maintenance/yes/2023.svg)
 
-
 # A Ansible Vault Role
 
 I've been using [Hashicorp Vault](https://www.vaultproject.io/) for what feels like almost a decade now. There have even been times when I have contributed, albeit in small ways, to the project. Then there are projects like [`aomi`](https://autodesk.github.io/aomi/) and [`hcvswitch`](https://github.com/otakup0pe/hcvswitch), let alone all the closed source nonsense I've gotten up to.

@@ -1,19 +1,19 @@
 ---
-- include: "pre.yml"
+- include_tasks: "pre.yml"
 
-- include: "package.yml"
+- include_tasks: "package.yml"
   when: "vault_type != 'docker'"
 
-- include: "server.yml"
+- include_tasks: "server.yml"
   when: "vault_type != 'client'"
 
-- include: "docker.yml"
+- include_tasks: "docker.yml"
   when: "vault_type == 'docker'"
 
-- include: "service.yml"
+- include_tasks: "service.yml"
   when: "vault_type == 'server'"
 
-- include: "workstation.yml"
+- include_tasks: "workstation.yml"
   when: vault_workstation
 
 - name: "set workstation vaultrc format"

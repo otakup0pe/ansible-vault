@@ -1,5 +1,5 @@
 ---
-- include: "hcvswitch.yml"
+- include_tasks: "hcvswitch.yml"
   when: hcvswitch_install
 
 - name: "remove unused software"

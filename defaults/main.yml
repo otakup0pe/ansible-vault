@@ -32,6 +32,8 @@ vault_docker_cert_path: "{{lookup('env', 'HOME')}}/.docker/machines/machine/loca
 vault_docker_tls_hostname: "{{ansible_fqdn}}"
 vault_docker_name: "some_vault"
 vault_nolog: true
+vault_running: true
+vault_startup: true
 
 vault_workstation: false
 hcvswitch_install: true

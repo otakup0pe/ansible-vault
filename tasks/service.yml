@@ -11,8 +11,8 @@
 - name: "enable and start vault"
   systemd:
     daemon_reload: true
-    enabled: true
-    state: "started"
+    enabled: vault_startup
+    state: "{{ 'started' if vault_running else 'stopped' }}"
     name: "vault"
   when: vault_systemd.changed
   register: vault_started
@@ -28,3 +28,4 @@
     or vault_tls_vault_bits.changed
     or vault_binary_copy.changed)
     and not vault_started.changed
+    and vault_running

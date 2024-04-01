@@ -1,0 +1,8 @@
+---
+- fail:
+    msg: "vault_user must be a string"
+  when: vault_user|default('') == ''
+
+- fail:
+    msg: "vault_group must be a string"
+  when: vault_group|default('') == ''

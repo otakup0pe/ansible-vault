@@ -1,4 +1,6 @@
 ---
+- include_tasks: "safety.yml"
+
 - include_tasks: "pre.yml"
 
 - include_tasks: "package.yml"

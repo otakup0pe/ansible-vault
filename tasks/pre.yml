@@ -4,6 +4,11 @@
     vault_download_url: "{{vault_pre_url}}{{ansible_system|lower}}_amd64.zip"
   when: "ansible_machine == 'x86_64'"
 
+- name: "set proper 64 bit arm download"
+  set_fact:
+    vault_download_url: "{{vault_pre_url}}{{ansible_system|lower}}_arm64.zip"
+  when: "ansible_machine == 'aarch64'"
+
 - name: "check for user"
   getent:
     database: "passwd"

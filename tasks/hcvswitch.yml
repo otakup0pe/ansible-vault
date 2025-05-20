@@ -21,4 +21,4 @@
     dest: "{{hcvswitch_config}}"
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
-    mode: "{{vault_dir_mode}}"
+    mode: "{{vault_file_mode}}"

@@ -8,3 +8,5 @@ hcvswitch_repo: "https://github.com/otakup0pe/hcvswitch.git"
 
 vault_safe_url: "https://github.com/starkandwayne/safe/releases/download/v{{vault_safe_version}}/safe-linux-amd64"
 
+vault_default_cert_path: "{{vault_config_path}}/server.crt"
+vault_default_key_path: "{{vault_config_path}}/server.key"

@@ -1,0 +1,58 @@
+#!/bin/bash
+# {{ansible_managed}}
+# Handle reloading vault after a certbot renewal
+set -eu
+
+# variables set from ansible
+VAULT_DOMAIN="{{vault_domain}}"
+VAULT_CONFIG_PATH="{{vault_config_path}}"
+VAULT_USER="{{vault_user}}"
+VAULT_GROUP="{{vault_group}}"
+
+# internal variables
+SRC_PATH="/etc/letsencrypt/live/${VAULT_DOMAIN}"
+SRC_KEY="${SRC_PATH}/privkey.pem"
+SRC_CERT="${SRC_PATH}/fullchain.pem"
+
+DEST_KEY="${VAULT_CONFIG_PATH}/server.key"
+DEST_CERT="${VAULT_CONFIG_PATH}/server.crt"
+
+reload() {
+    if systemctl is-active --quiet vault; then
+	VAULT_PID=$(systemctl show --property MainPID --value vault)
+	if [ "$VAULT_PID" != "0" ]; then
+            kill -HUP "$VAULT_PID"
+	    logger -p daemon.info -t vault-certbot "SIGHUP sent to ${VAULT_DOMAIN} vault pid:${VAULT_PID}"
+	else
+	    logger -p daemon.error -t vault-certbot "could not find ${VAULT_DOMAIN} vault pid"
+	fi
+    else
+	logger -p daemon.error -t vault-certbot "${VAULT_DOMAIN} vault service not running"
+    fi
+}
+
+if [ ! -e "$SRC_KEY" ] || [ ! -e "$SRC_CERT" ] ; then
+    logger -p daemon.error -t vault-certbot "unable to find source certificate/key"
+    exit 1
+fi
+
+CHANGED=""
+if [ ! -e "$DEST_KEY" ] || [ "$(sha256sum "$SRC_KEY")" != "$(sha256sum "$DEST_KEY")" ] ; then
+    cp "$SRC_KEY" "$DEST_KEY"
+    chown "${VAULT_USER}:${VAULT_GROUP}" "$DEST_KEY"
+    chmod 0600 "$DEST_KEY"
+    logger -p daemon.info -t vault-certbot "replaced ${VAULT_DOMAIN} key"
+    CHANGED="yes"
+fi
+
+if [ ! -e "$DEST_CERT" ] || [ "$(sha256sum "$SRC_CERT")" != "$(sha256sum "$DEST_CERT")" ] ; then
+    cp "$SRC_CERT" "$DEST_CERT"
+    chown "${VAULT_USER}:${VAULT_GROUP}" "$DEST_CERT"
+    chmod 0640 "$DEST_CERT"
+    logger -p daemon.info -t vault-certbot "replaced ${VAULT_DOMAIN} certificate"
+    CHANGED="yes"
+fi
+
+if [ -n "$CHANGED" ] ; then
+    reload
+fi

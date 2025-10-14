@@ -19,7 +19,11 @@ vault_ip: "127.0.0.1"
 vault_internal_ip: "{{vault_ip}}"
 vault_aws_region: "us-west-2"
 vault_cache: "/var/cache/ansible-vault"
-vault_cert_source: "vault"  # or file, in which case vault_cert_path should be a file path
+# vault_cert_source
+#   vault       - pull cert and key from a hashicorp vault path
+#   file        - copy cert and key from somewhere on (remote) filesystem
+#   letsencrypt - install, and run once, a certbot hook
+vault_cert_source: "vault"
 vault_cert_path: "secret/data/vault:cert"
 vault_key_path: "secret/data/vault:key"
 vault_version: "1.5.0"
@@ -40,3 +44,5 @@ hcvswitch_install: true
 hcvswitch_path: "{{vault_path}}/hcvswitch"
 hcvswitch_config: "{{lookup('env', 'HOME')}}/.hcv.yml"
 hcvswitch_update: true
+
+letsencrypt_hook_prefix: ""

@@ -11,8 +11,8 @@ listener "tcp" {
   tls_cert_file = "/vault/config/server.crt"
   tls_key_file = "/vault/config/server.key"
 {% else %}
-  tls_cert_file = "{{vault_config_path}}/server.crt"
-  tls_key_file = "{{vault_config_path}}/server.key"
+  tls_cert_file = "{{vault_cert_path|default(vault_default_cert_path)}}"
+  tls_key_file = "{{vault_key_path|default(vault_default_key_path)}}"
 {% endif %}
 }
 

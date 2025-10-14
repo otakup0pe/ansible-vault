@@ -56,3 +56,33 @@
       src: "{{vault_key_path}}"
   register: vault_tls_file_bits
   when: vault_cert_source == 'file'
+
+- name: "handle tls bits with certbot"
+  block:
+    - name: "ensure vault_domain is set"
+      fail:
+        msg: "vault_domain is not set"
+      when: vault_domain|default('') == ''
+
+    - name: "install certbot hook"
+      template:
+        src: "certbot_hook.sh.j2"
+        dest: "/etc/letsencrypt/renewal-hooks/deploy/{{letsencrypt_hook_prefix}}vault.sh"
+        owner: "root"
+        group: "root"
+        mode: "0770"
+
+    - name: "check if we have run once"
+      stat:
+        path: "{{vault_cache}}/certbot_hook-{{vault_domain}}"
+      register: vault_certbot_check
+
+    - name: "run once, if needed"
+      command: "/etc/letsencrypt/renewal-hooks/deploy/{{letsencrypt_hook_prefix}}vault.sh"
+
+    - name: "mark that we have run once"
+      file:
+        path: "{{vault_cache}}/certbot_hook-{{vault_domain}}"
+        state: "touch"
+
+  when: vault_cert_source == 'letsencrypt'

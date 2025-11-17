@@ -7,6 +7,12 @@
     mode: "{{vault_dir_mode}}"
     state: "directory"
 
+- name: "set cert paths for letsencrypt"
+  set_fact:
+    vault_cert_path: "{{vault_config_path}}/server.crt"
+    vault_key_path: "{{vault_config_path}}/server.key"
+  when: vault_cert_source == 'letsencrypt'
+
 - name: "generate configuration"
   template:
     src: "config.hcl"
@@ -84,5 +90,6 @@
       file:
         path: "{{vault_cache}}/certbot_hook-{{vault_domain}}"
         state: "touch"
+      when: not vault_certbot_check.stat.exists
 
   when: vault_cert_source == 'letsencrypt'

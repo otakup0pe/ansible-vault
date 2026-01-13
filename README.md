@@ -1,6 +1,6 @@
 ![Voila sont les dragons](images/dragons.png)
 
-![Maintenance](https://img.shields.io/maintenance/yes/2025.svg)
+![Maintenance](https://img.shields.io/maintenance/yes/2026.svg)
 
 # A Ansible Vault Role
 

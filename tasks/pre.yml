@@ -22,7 +22,7 @@
     create_home: false
     state: "present"
   when: >
-    (not vault_user_exists) and vault_create
+    (not vault_user_exists | bool) and (vault_create | bool)
 
 - name: "check for group"
   getent:
@@ -40,7 +40,7 @@
     name: "{{vault_group}}"
     state: "present"
   when: >
-    (not vault_group_exists) and vault_create
+    (not vault_group_exists | bool) and (vault_create | bool)
 
 - name: "add user to group if needed"
   user:
@@ -49,7 +49,7 @@
       - "{{vault_group}}"
     append: true
   when: >
-    (not vault_group_exists) and vault_create
+    (not vault_group_exists | bool) and (vault_create | bool)
 
 - name: "create cache directory"
   file:
@@ -58,3 +58,4 @@
     owner: "{{vault_user}}"
     group: "{{vault_group}}"
     mode: "{{vault_dir_mode}}"
+  when: (vault_user_exists | bool) or (vault_create | bool)

@@ -8,7 +8,7 @@
 
 - name: "determine if vault user exists"
   set_fact:
-    vault_user_exists: "{% if getent_passwd[vault_user] != None %}true{% else %}false{% endif %}"
+    vault_user_exists: "{% if ansible_facts['getent_passwd'][vault_user] != None %}true{% else %}false{% endif %}"
 
 - name: "create user if non existent"
   user:
@@ -28,7 +28,7 @@
 
 - name: "determine if vault group exists"
   set_fact:
-    vault_group_exists: "{% if getent_group[vault_group] != None %}true{% else %}false{% endif %}"
+    vault_group_exists: "{% if ansible_facts['getent_group'][vault_group] != None %}true{% else %}false{% endif %}"
 
 - name: "create group if needed"
   group:

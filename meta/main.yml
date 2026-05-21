@@ -12,7 +12,7 @@ dependencies:
           - "su {{vault_user}} {{vault_group}}"
           - copytruncate
           - "create 0660 {{vault_user}} {{vault_group}}"
-    when: "vault_type != 'client' and ansible_system == 'Linux'"
+    when: "vault_type != 'client' and ansible_facts['system'] == 'Linux'"
 galaxy_info:
   author: Jonathan Freedman
   license: MIT
